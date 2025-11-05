@@ -1,21 +1,21 @@
 import tkinter as tk
-import time
 from tkinter import messagebox
-from jogador import Jogador
+
 
 def historia(jogador=None):
     nome = jogador if jogador else "Aventureiro"
 
     # Cria a janela principal
-    janela = tk.Tk()
-    janela.title("🌌 LEGENDARUM🌌")
+    janela = tk.Toplevel()  # usa Toplevel para não criar uma nova root
+    janela.title("🌌 LEGENDARUM 🌌")
     janela.geometry("800x600")
     janela.config(bg="#0d0d0d")
 
-    # Frame para centralizar o conteúdo
+    # Frame principal
     frame = tk.Frame(janela, bg="#0d0d0d")
     frame.pack(expand=True, fill="both", padx=40, pady=40)
 
+    # Título
     titulo = tk.Label(
         frame,
         text="🌌 LEGENDARUM 🌌",
@@ -25,6 +25,7 @@ def historia(jogador=None):
     )
     titulo.pack(pady=(0, 20))
 
+    # Área de texto
     texto_widget = tk.Text(
         frame,
         wrap="word",
@@ -33,24 +34,13 @@ def historia(jogador=None):
         bg="#111111",
         height=20,
         width=80,
-        relief="flat"
+        relief="flat",
+        state="disabled"
     )
     texto_widget.pack(pady=(0, 20))
-    texto_widget.configure(state="disabled")
-
-    def escrever_texto(texto, delay=40):
-        """Efeito de digitação no texto"""
-        texto_widget.configure(state="normal")
-        for char in texto:
-            texto_widget.insert(tk.END, char)
-            texto_widget.see(tk.END)
-            texto_widget.update()
-            time.sleep(delay / 1000)
-        texto_widget.insert(tk.END, "\n")
-        texto_widget.configure(state="disabled")
 
     historia_texto = f"""
-Bem-vindo, {jogador}!
+Bem-vindo, {nome}!
 
 Um rei conquistador encontra paz ao formar uma família.
 Durante uma festa em celebração à paz, o castelo é atacado por um guerreiro misterioso.
@@ -58,10 +48,29 @@ O príncipe tenta defender o reino, mas é derrotado e resgatado pela general, e
 Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antigas, heróis capazes de ajudá-lo a restaurar o reino e derrotar o inimigo sombrio.
 """
 
-    # Função para iniciar o texto com efeito de digitação
+    # --- Função para escrever o texto com efeito de digitação ---
+    def escrever_texto(index=0):
+        if not janela.winfo_exists():
+            return  # Evita erros se a janela for fechada
+
+        if index < len(historia_texto):
+            texto_widget.configure(state="normal")
+            texto_widget.insert(tk.END, historia_texto[index])
+            texto_widget.see(tk.END)
+            texto_widget.configure(state="disabled")
+            janela.after(25, lambda: escrever_texto(index + 1))
+        else:
+            texto_widget.configure(state="normal")
+            texto_widget.insert(tk.END, "\n\nAperte 'Fechar' para continuar sua jornada...")
+            texto_widget.configure(state="disabled")
+
+            # Exibe botão de encerrar após o texto
+            botao_fechar.pack(pady=15)
+
+    # --- Botão inicial ---
     def iniciar_historia():
         botao_iniciar.destroy()
-        janela.after(200, lambda: escrever_texto(historia_texto, 25))
+        escrever_texto(0)
 
     botao_iniciar = tk.Button(
         frame,
@@ -75,19 +84,22 @@ Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antig
     )
     botao_iniciar.pack()
 
+    # --- Botão de fechar (aparece só no final) ---
     def encerrar():
         messagebox.showinfo("Fim", "A história começa agora, herdeiro das lendas...")
-        janela.destroy()
+        janela.destroy()  # Fecha a janela para continuar o jogo
 
-    botao_sair = tk.Button(
+    botao_fechar = tk.Button(
         frame,
         text="Fechar",
         command=encerrar,
-        font=("Arial", 10, "bold"),
-        bg="#222",
-        fg="white",
-        width=10
+        font=("Arial", 12, "bold"),
+        bg="#550000",
+        fg="#FFFFFF",
+        width=15,
+        height=2
     )
-    botao_sair.pack(pady=(10, 0))
 
-    janela.mainloop()
+    # Bloqueia a execução do jogo até a janela fechar
+    janela.grab_set()
+    janela.wait_window()
