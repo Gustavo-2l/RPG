@@ -1,160 +1,96 @@
 import tkinter as tk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import random
+from jogador import Jogador
 
-class JogoRPG:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("🔥 RPG Lendário 🔥")
-        self.root.geometry("700x500")
-        self.root.config(bg="#1a1a1a")
+def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png"):
+    # --- Janela do combate ---
+    janela = tk.Toplevel()
+    janela.title(f"⚔️ Batalha contra {inimigo.nome}")
+    janela.attributes("-fullscreen", True)  # Tela cheia
+    janela.configure(bg="black")
 
-        # Cria um frame principal — onde tudo será trocado
-        self.frame_principal = tk.Frame(self.root, bg="#1a1a1a")
-        self.frame_principal.pack(fill="both", expand=True)
+    # --- Canvas para colocar fundo ---
+    canvas = tk.Canvas(janela, bg="black")
+    canvas.pack(fill="both", expand=True)
 
-        # Exemplo de jogador/inimigo (pode ser substituído pelo seu sistema)
-        self.jogador = type("J", (), {"nome":"Herói", "vida":100, "vida_max":100, "mana":50, "mana_max":50,
-                                      "atacar":lambda self: random.randint(10,20),
-                                      "defender_acao":lambda self: None,
-                                      "esquivar":lambda self: random.random()<0.3,
-                                      "defender":lambda self,dano: setattr(self,"vida",max(0,self.vida-int(dano))),
-                                      "usar_item":lambda self,i: None,
-                                      "usar_habilidade":lambda self,ini: True,
-                                      "inventario":{"poção":2}})()
-        self.inimigo = type("I", (), {"nome":"Goblin", "vida":80, "vida_max":80, "forca":10,
-                                      "atacar":lambda self: random.randint(5,15)})()
+    # Carrega imagem original do fundo
+    try:
+        imagem_original = Image.open(caminho_fundo)
+    except Exception as e:
+        print(f"Erro ao carregar imagem de fundo: {e}")
+        imagem_original = None
 
-        # Começa na tela inicial
-        self.mostrar_menu_inicial()
+    # --- Labels de status ---
+    label_jogador = tk.Label(janela, text=f"{jogador.nome}: ❤️ {jogador.vida}/{jogador.vida_max}",
+                             fg="white", bg="#000000", font=("Consolas", 12))
+    label_inimigo = tk.Label(janela, text=f"{inimigo.nome}: ❤️ {inimigo.vida}/{inimigo.vida_max}",
+                             fg="red", bg="#000000", font=("Consolas", 12))
 
-        self.root.mainloop()
+    canvas.create_window(20, 20, anchor="nw", window=label_jogador)
+    canvas.create_window(20, 60, anchor="nw", window=label_inimigo)
 
-    # --- Troca de telas ---
-    def limpar_tela(self):
-        for widget in self.frame_principal.winfo_children():
-            widget.destroy()
+    # --- Log de combate ---
+    log = tk.Text(janela, width=70, height=12, bg="#0d0d0d", fg="white", font=("Consolas", 10))
+    canvas.create_window(20, 100, anchor="nw", window=log)
 
-    # --- Tela inicial ---
-    def mostrar_menu_inicial(self):
-        self.limpar_tela()
-        tk.Label(self.frame_principal, text="🏰 Bem-vindo ao RPG Lendário",
-                 font=("Arial", 18, "bold"), fg="white", bg="#1a1a1a").pack(pady=40)
+    # --- Frame para botões ---
+    frame_botoes = tk.Frame(janela, bg="#000000")
+    canvas.create_window(20, 500, anchor="nw", window=frame_botoes)
 
-        tk.Button(self.frame_principal, text="Iniciar Jogo", command=self.iniciar_fase,
-                  bg="#333", fg="white", width=20, height=2).pack()
+    # --- Funções ---
+    def registrar(texto):
+        log.insert(tk.END, texto + "\n")
+        log.see(tk.END)
 
-    # --- Tela da fase (pode exibir história, NPCs etc.) ---
-    def iniciar_fase(self):
-        self.limpar_tela()
-        tk.Label(self.frame_principal, text="🌲 Fase 1: Floresta Sombria",
-                 font=("Arial", 16, "bold"), fg="white", bg="#1a1a1a").pack(pady=20)
-        tk.Button(self.frame_principal, text="Entrar em combate ⚔️",
-                  command=self.iniciar_combate, bg="#444", fg="white", width=20, height=2).pack(pady=20)
+    def atualizar_status():
+        label_jogador.config(text=f"{jogador.nome}: ❤️ {jogador.vida}/{jogador.vida_max}")
+        label_inimigo.config(text=f"{inimigo.nome}: ❤️ {inimigo.vida}/{inimigo.vida_max}")
 
-    # --- Tela de combate ---
-    def iniciar_combate(self):
-        self.limpar_tela()
+    def atacar():
+        dano = jogador.atacar()
+        inimigo.vida -= dano
+        registrar(f"{jogador.nome} causou {dano} de dano!")
+        atualizar_status()
+        if inimigo.vida <= 0:
+            registrar(f"{inimigo.nome} foi derrotado!")
+            messagebox.showinfo("Vitória!", f"{jogador.nome} venceu a batalha!")
+            janela.destroy()
 
-        self.log = tk.Text(self.frame_principal, width=80, height=10, bg="#0d0d0d", fg="white", font=("Consolas", 10))
-        self.log.pack(pady=10)
+    def defender():
+        registrar(f"{jogador.nome} se defendeu!")
+        # Aqui você pode implementar redução de dano ou outro efeito
 
-        self.label_status = tk.Label(self.frame_principal, fg="lime", bg="#1a1a1a", font=("Consolas", 12))
-        self.label_status.pack()
-
-        self.label_inimigo = tk.Label(self.frame_principal, fg="red", bg="#1a1a1a", font=("Consolas", 12))
-        self.label_inimigo.pack()
-
-        self.frame_botoes = tk.Frame(self.frame_principal, bg="#1a1a1a")
-        self.frame_botoes.pack(pady=10)
-
-        botoes = [
-            ("⚔️ Atacar", self.atacar),
-            ("🛡️ Defender", self.defender),
-            ("💨 Esquivar", self.esquivar),
-            ("🧪 Usar Item", self.usar_item),
-            ("🌟 Habilidade", self.habilidade),
-        ]
-        for texto, cmd in botoes:
-            tk.Button(self.frame_botoes, text=texto, command=cmd,
-                      width=12, height=2, bg="#333", fg="white",
-                      font=("Arial", 10, "bold")).pack(side=tk.LEFT, padx=5)
-
-        self.atualizar_status()
-        self.registrar("💥 Combate iniciado!")
-
-    def atualizar_status(self):
-        self.label_status.config(
-            text=f"{self.jogador.nome}: ❤️ {self.jogador.vida}/{self.jogador.vida_max} | 🔵 {self.jogador.mana}/{self.jogador.mana_max}"
-        )
-        self.label_inimigo.config(
-            text=f"{self.inimigo.nome}: ❤️ {self.inimigo.vida}/{self.inimigo.vida_max}"
-        )
-
-    def registrar(self, texto):
-        self.log.insert(tk.END, texto + "\n")
-        self.log.see(tk.END)
-
-    # --- Ações do jogador ---
-    def atacar(self):
-        dano = self.jogador.atacar()
-        self.inimigo.vida -= dano
-        self.registrar(f"{self.jogador.nome} ataca causando {dano} de dano!")
-        if self.inimigo.vida <= 0:
-            self.vitoria()
+    def usar_habilidade():
+        if jogador.habilidade_desbloqueada:
+            registrar(f"{jogador.nome} usou {jogador.habilidade_desbloqueada}!")
+            # Implementar efeito da habilidade
         else:
-            self.root.after(1000, self.turno_inimigo)
-        self.atualizar_status()
+            registrar(f"{jogador.nome} não possui habilidade desbloqueada.")
 
-    def defender(self):
-        self.jogador.defender_acao()
-        self.registrar(f"{self.jogador.nome} se defende!")
-        self.root.after(1000, self.turno_inimigo)
+    # --- Botões ---
+    botoes = [
+        ("⚔️ Atacar", atacar),
+        ("🛡️ Defender", defender),
+        ("✨ Habilidade", usar_habilidade)
+    ]
+    for texto, cmd in botoes:
+        tk.Button(frame_botoes, text=texto, command=cmd, bg="#333", fg="white", width=12, height=2).pack(side="left", padx=5)
 
-    def esquivar(self):
-        if self.jogador.esquivar():
-            self.registrar(f"{self.jogador.nome} esquivou com sucesso!")
-        else:
-            dano = self.inimigo.atacar()
-            self.jogador.defender(dano)
-            self.registrar(f"{self.jogador.nome} falhou e recebeu {dano} de dano!")
-        self.root.after(1000, self.turno_inimigo)
-        self.atualizar_status()
+    registrar(f"O combate começou contra {inimigo.nome}!")
+    atualizar_status()
 
-    def usar_item(self):
-        self.registrar(f"{self.jogador.nome} usou uma poção! ❤️ +20")
-        self.jogador.vida = min(self.jogador.vida + 20, self.jogador.vida_max)
-        self.root.after(1000, self.turno_inimigo)
-        self.atualizar_status()
+    # --- Redimensiona a imagem de fundo automaticamente ---
+    def redimensionar_fundo(event):
+        if imagem_original:
+            nova_imagem = imagem_original.resize((event.width, event.height))
+            fundo = ImageTk.PhotoImage(nova_imagem)
+            canvas.background = fundo  # mantém referência
+            canvas.create_image(0, 0, image=fundo, anchor="nw")
+            canvas.tag_lower("all")  # garante que o fundo fique atrás de tudo
 
-    def habilidade(self):
-        if self.jogador.usar_habilidade(self.inimigo):
-            self.registrar("✨ Ataque especial usado!")
-            self.inimigo.vida -= 30
-        self.root.after(1000, self.turno_inimigo)
-        self.atualizar_status()
+    canvas.bind("<Configure>", redimensionar_fundo)
 
-    def turno_inimigo(self):
-        if self.inimigo.vida <= 0:
-            self.vitoria()
-            return
-        dano = self.inimigo.atacar()
-        self.jogador.defender(dano)
-        self.registrar(f"{self.inimigo.nome} causa {dano} de dano!")
-        if self.jogador.vida <= 0:
-            self.derrota()
-        self.atualizar_status()
-
-    # --- Fim de combate ---
-    def vitoria(self):
-        self.registrar("🏆 Vitória!")
-        tk.Button(self.frame_principal, text="Continuar ▶️", command=self.iniciar_fase,
-                  bg="#2e8b57", fg="white").pack(pady=20)
-
-    def derrota(self):
-        self.registrar("☠️ Você foi derrotado...")
-        tk.Button(self.frame_principal, text="Tentar novamente", command=self.iniciar_combate,
-                  bg="#8b0000", fg="white").pack(pady=20)
-
-# --- Inicia o jogo ---
-JogoRPG()
+    # --- Tecla ESC para sair do fullscreen ---
+    janela.bind("<Escape>", lambda e: janela.destroy())

@@ -2,20 +2,87 @@ import tkinter as tk
 from tkinter import messagebox
 
 
-def historia(jogador=None):
+def historia(jogador=None, fase=0):
     nome = jogador if jogador else "Aventureiro"
 
-    # Cria a janela principal
-    janela = tk.Toplevel()  # usa Toplevel para não criar uma nova root
+    # Textos e diálogos das fases
+    historias = [
+        f"""
+👑 REINO DE ARDANIA — O INÍCIO
+
+Bem-vindo, {nome}...
+
+Um rei conquistador encontra paz ao formar uma família.
+Durante a festa da vitória, o castelo é atacado por um guerreiro misterioso.
+O príncipe tenta defender o reino, mas é derrotado e resgatado pela general,
+enquanto o rei e a rainha tombam diante das chamas.
+
+Sem lar e sem exército, o príncipe jura restaurar seu trono
+e parte em busca das antigas Lendas — heróis esquecidos do tempo.
+""",
+
+        f"""
+🌲 FLORESTA DE LUNYSSE — PRIMEIRO DESPERTAR
+
+{nome} atravessa florestas densas onde o tempo parece não passar.
+As árvores sussurram seu nome... e uma voz responde.
+
+🧙‍♂️ Sábio Ancião: "Você busca poder, jovem príncipe... ou redenção?"
+
+👤 {nome}: "Busco justiça. Meu reino caiu, e só as Lendas podem me ajudar."
+
+🧙‍♂️ Sábio Ancião: "Então prove ser digno. Derrote os espíritos guardiões
+e as Lendas talvez escutem seu chamado."
+""",
+
+        f"""
+🏰 RUÍNAS DE VALKAR — ECO DAS ESPADAS
+
+Os ecos de antigas batalhas ressoam pelas paredes quebradas.
+Entre elas, o espírito de um guerreiro surge, empunhando uma lâmina flamejante.
+
+🔥 Lenda do Fogo: "Você... ousa perturbar meu descanso?"
+
+👤 {nome}: "Não vim roubar teu poder. Vim lutar ao teu lado."
+
+🔥 Lenda do Fogo: "Então lute, mortal. Mostre se é digno de portar uma chama eterna!"
+""",
+
+        f"""
+🌋 FORTALEZA DAS SOMBRAS — CONFRONTO FINAL
+
+As muralhas tremem. Raios cortam o céu escarlate.
+O inimigo de outrora, o Guerreiro Negro, aguarda.
+
+⚔️ Guerreiro Negro: "Você cresceu, príncipe. Mas coragem não é poder."
+
+👤 {nome}: "Não preciso de poder. Tenho fé nas Lendas... e no legado do meu pai!"
+
+⚔️ Guerreiro Negro: "Então venha! Mostre-me a força do seu destino!"
+
+O destino do mundo será decidido agora...
+"""
+    ]
+
+    # Escolhe o texto da fase
+    if fase < len(historias):
+        historia_texto = historias[fase]
+    else:
+        historia_texto = f"""
+🌌 EPÍLOGO
+
+{nome}, sua jornada terminou, mas as Lendas viverão em sua memória.
+O reino renasceu das cinzas — e o mundo voltará a cantar seu nome.
+"""
+    # --- Criação da janela ---
+    janela = tk.Toplevel()
     janela.title("🌌 LEGENDARUM 🌌")
     janela.geometry("800x600")
     janela.config(bg="#0d0d0d")
 
-    # Frame principal
     frame = tk.Frame(janela, bg="#0d0d0d")
     frame.pack(expand=True, fill="both", padx=40, pady=40)
 
-    # Título
     titulo = tk.Label(
         frame,
         text="🌌 LEGENDARUM 🌌",
@@ -25,7 +92,6 @@ def historia(jogador=None):
     )
     titulo.pack(pady=(0, 20))
 
-    # Área de texto
     texto_widget = tk.Text(
         frame,
         wrap="word",
@@ -39,20 +105,10 @@ def historia(jogador=None):
     )
     texto_widget.pack(pady=(0, 20))
 
-    historia_texto = f"""
-Bem-vindo, {nome}!
-
-Um rei conquistador encontra paz ao formar uma família.
-Durante uma festa em celebração à paz, o castelo é atacado por um guerreiro misterioso.
-O príncipe tenta defender o reino, mas é derrotado e resgatado pela general, enquanto o rei e a rainha morrem.
-Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antigas, heróis capazes de ajudá-lo a restaurar o reino e derrotar o inimigo sombrio.
-"""
-
     # --- Função para escrever o texto com efeito de digitação ---
     def escrever_texto(index=0):
         if not janela.winfo_exists():
-            return  # Evita erros se a janela for fechada
-
+            return
         if index < len(historia_texto):
             texto_widget.configure(state="normal")
             texto_widget.insert(tk.END, historia_texto[index])
@@ -63,8 +119,6 @@ Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antig
             texto_widget.configure(state="normal")
             texto_widget.insert(tk.END, "\n\nAperte 'Fechar' para continuar sua jornada...")
             texto_widget.configure(state="disabled")
-
-            # Exibe botão de encerrar após o texto
             botao_fechar.pack(pady=15)
 
     # --- Botão inicial ---
@@ -84,10 +138,10 @@ Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antig
     )
     botao_iniciar.pack()
 
-    # --- Botão de fechar (aparece só no final) ---
+    # --- Botão de fechar ---
     def encerrar():
         messagebox.showinfo("Fim", "A história começa agora, herdeiro das lendas...")
-        janela.destroy()  # Fecha a janela para continuar o jogo
+        janela.destroy()
 
     botao_fechar = tk.Button(
         frame,
@@ -100,6 +154,6 @@ Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antig
         height=2
     )
 
-    # Bloqueia a execução do jogo até a janela fechar
+    # Bloqueia a execução até a janela fechar
     janela.grab_set()
     janela.wait_window()
