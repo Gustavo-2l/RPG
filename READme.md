@@ -32,7 +32,7 @@ Ao vencer todas as fases, o jogador recebe uma mensagem de conclusão épica
  
 A interface é criada inteiramente com Tkinter, priorizando:
  
-Design temático (cores sombrias e detalhes dourados);
+Design temático (cores sombrias e minimalistas);
  
 Leitura intuitiva;
  
