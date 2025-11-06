@@ -43,9 +43,13 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
     frame_botoes = tk.Frame(janela, bg="#000000")
     canvas.create_window(20, 500, anchor="nw", window=frame_botoes)
 
-    # --- Funções auxiliares ---
-    turno_jogador = True
+    # --- Variáveis de controle ---
+    jogador.defendendo = False
+    jogador.esquivando = False
+    if not hasattr(jogador, "itens"):
+        jogador.itens = {"poção": 2}  # caso o jogador ainda não tenha itens
 
+    # --- Funções auxiliares ---
     def registrar(texto):
         log.insert(tk.END, texto + "\n")
         log.see(tk.END)
@@ -81,10 +85,33 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
         if verificar_fim():
             return
 
+        # --- Esquiva ---
+        if jogador.esquivando:
+            chance = random.random()
+            if chance <= 0.5:
+                registrar(f"{jogador.nome} esquivou com sucesso! 🌀 Nenhum dano recebido.")
+                jogador.esquivando = False
+                registrar(f"É a vez de {jogador.nome}!")
+                for b in botoes_widgets:
+                    b.config(state="normal")
+                return
+            else:
+                registrar(f"{jogador.nome} tentou esquivar, mas falhou! 😣")
+            jogador.esquivando = False
+
+        # --- Ataque inimigo ---
         dano = inimigo.atacar()
+
+        # Defesa reduz dano
+        if jogador.defendendo:
+            dano = int(dano * 0.5)
+            jogador.defendendo = False
+            registrar(f"{jogador.nome} defendeu e reduziu o dano pela metade!")
+
         jogador.vida -= dano
         if jogador.vida < 0:
             jogador.vida = 0
+
         registrar(f"{inimigo.nome} atacou e causou {dano} de dano!")
         atualizar_status()
 
@@ -107,8 +134,26 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
             fim_turno()
 
     def defender():
-        registrar(f"{jogador.nome} se defendeu! (menos dano no próximo ataque)")
+        registrar(f"{jogador.nome} se defendeu! 🛡️ (menos dano no próximo ataque)")
         jogador.defendendo = True
+        fim_turno()
+
+    def esquivar():
+        registrar(f"{jogador.nome} se prepara para esquivar! 🌀 (50% de chance de evitar dano)")
+        jogador.esquivando = True
+        fim_turno()
+
+    def usar_item():
+        if jogador.itens.get("poção", 0) > 0:
+            jogador.itens["poção"] -= 1
+            cura = random.randint(20, 35)
+            jogador.vida += cura
+            if jogador.vida > jogador.vida_max:
+                jogador.vida = jogador.vida_max
+            registrar(f"{jogador.nome} usou uma poção e recuperou {cura} de vida! 💊 ({jogador.itens['poção']} restantes)")
+            atualizar_status()
+        else:
+            registrar("⚠️ Você não tem mais poções!")
         fim_turno()
 
     def usar_habilidade():
@@ -116,6 +161,8 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
             registrar(f"{jogador.nome} usou {jogador.habilidade_desbloqueada}! ✨")
             dano = random.randint(15, 25)
             inimigo.vida -= dano
+            if inimigo.vida < 0:
+                inimigo.vida = 0
             registrar(f"A habilidade causou {dano} de dano extra!")
             atualizar_status()
         else:
@@ -126,6 +173,8 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
     botoes = [
         ("⚔️ Atacar", atacar),
         ("🛡️ Defender", defender),
+        ("🌀 Esquivar", esquivar),
+        ("💊 Usar Item", usar_item),
         ("✨ Habilidade", usar_habilidade)
     ]
     botoes_widgets = []
@@ -136,7 +185,7 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
         botoes_widgets.append(b)
 
     # --- Log inicial ---
-    registrar(f"O combate começou contra {inimigo.nome}!")
+    registrar(f"O combate começou contra {inimigo.nome}! ⚔️")
     registrar(f"É a vez de {jogador.nome}!")
     atualizar_status()
 

@@ -88,7 +88,7 @@ def carregar_fases():
         Inimigo("Lobo Selvagem", 30, 5, 20),
         Inimigo("Lobo Alfa", 40, 7, 30),
     ]
-    boss1 = Inimigo("Caçador de Recompensa", 60, 10, 50)
+    boss1 = Inimigo("Caçador de Recompensa", 45, 10, 50)
     lendas1 = ["Mago Criomante"]
     historia1 = [
         "Você entra na Floresta das Cinzas...",
