@@ -5,7 +5,6 @@ from tkinter import messagebox
 def historia(jogador=None, fase=0):
     nome = jogador if jogador else "Aventureiro"
 
-    # Textos e diálogos das fases
     historias = [
         f"""
 👑 REINO DE ARDANIA — O INÍCIO
@@ -13,14 +12,10 @@ def historia(jogador=None, fase=0):
 Bem-vindo, {nome}...
 
 Um rei conquistador encontra paz ao formar uma família.
-Durante a festa da vitória, o castelo é atacado por um guerreiro misterioso.
-O príncipe tenta defender o reino, mas é derrotado e resgatado pela general,
-enquanto o rei e a rainha tombam diante das chamas.
-
-Sem lar e sem exército, o príncipe jura restaurar seu trono
-e parte em busca das antigas Lendas — heróis esquecidos do tempo.
+Durante uma festa em celebração à paz, o castelo é atacado por um guerreiro misterioso.
+O príncipe tenta defender o reino, mas é derrotado e resgatado pela general, enquanto o rei e a rainha morrem.
+Sozinho e rejeitado por outros reinos, o príncipe decide buscar as lendas antigas, heróis capazes de ajudá-lo a restaurar o reino e derrotar o inimigo sombrio.
 """,
-
         f"""
 🌲 FLORESTA DE LUNYSSE — PRIMEIRO DESPERTAR
 
@@ -34,7 +29,6 @@ As árvores sussurram seu nome... e uma voz responde.
 🧙‍♂️ Sábio Ancião: "Então prove ser digno. Derrote os espíritos guardiões
 e as Lendas talvez escutem seu chamado."
 """,
-
         f"""
 🏰 RUÍNAS DE VALKAR — ECO DAS ESPADAS
 
@@ -47,7 +41,6 @@ Entre elas, o espírito de um guerreiro surge, empunhando uma lâmina flamejante
 
 🔥 Lenda do Fogo: "Então lute, mortal. Mostre se é digno de portar uma chama eterna!"
 """,
-
         f"""
 🌋 FORTALEZA DAS SOMBRAS — CONFRONTO FINAL
 
@@ -64,7 +57,6 @@ O destino do mundo será decidido agora...
 """
     ]
 
-    # Escolhe o texto da fase
     if fase < len(historias):
         historia_texto = historias[fase]
     else:
@@ -74,7 +66,8 @@ O destino do mundo será decidido agora...
 {nome}, sua jornada terminou, mas as Lendas viverão em sua memória.
 O reino renasceu das cinzas — e o mundo voltará a cantar seu nome.
 """
-    # --- Criação da janela ---
+
+    # --- Janela ---
     janela = tk.Toplevel()
     janela.title("🌌 LEGENDARUM 🌌")
     janela.geometry("800x600")
@@ -105,7 +98,7 @@ O reino renasceu das cinzas — e o mundo voltará a cantar seu nome.
     )
     texto_widget.pack(pady=(0, 20))
 
-    # --- Função para escrever o texto com efeito de digitação ---
+    # --- Função para escrever o texto ---
     def escrever_texto(index=0):
         if not janela.winfo_exists():
             return
@@ -120,11 +113,25 @@ O reino renasceu das cinzas — e o mundo voltará a cantar seu nome.
             texto_widget.insert(tk.END, "\n\nAperte 'Fechar' para continuar sua jornada...")
             texto_widget.configure(state="disabled")
             botao_fechar.pack(pady=15)
+            botao_pular.pack_forget()  # Esconde o botão pular após terminar
 
-    # --- Botão inicial ---
+    # --- Botões ---
     def iniciar_historia():
         botao_iniciar.destroy()
         escrever_texto(0)
+
+    def encerrar():
+        messagebox.showinfo("Fim", "A história começa agora, herdeiro das lendas...")
+        janela.destroy()
+
+    def pular_historia():
+        # Mostra mensagem rápida e fecha
+        texto_widget.configure(state="normal")
+        texto_widget.delete(1.0, tk.END)
+        texto_widget.insert(tk.END, "História pulada...\n")
+        texto_widget.configure(state="disabled")
+        botao_fechar.pack(pady=15)
+        botao_pular.pack_forget()  # Oculta botão após pular
 
     botao_iniciar = tk.Button(
         frame,
@@ -138,11 +145,6 @@ O reino renasceu das cinzas — e o mundo voltará a cantar seu nome.
     )
     botao_iniciar.pack()
 
-    # --- Botão de fechar ---
-    def encerrar():
-        messagebox.showinfo("Fim", "A história começa agora, herdeiro das lendas...")
-        janela.destroy()
-
     botao_fechar = tk.Button(
         frame,
         text="Fechar",
@@ -154,6 +156,17 @@ O reino renasceu das cinzas — e o mundo voltará a cantar seu nome.
         height=2
     )
 
-    # Bloqueia a execução até a janela fechar
+    botao_pular = tk.Button(
+        frame,
+        text="⏩ Pular História",
+        command=pular_historia,
+        font=("Arial", 12, "bold"),
+        bg="#333333",
+        fg="#FFFFFF",
+        width=20,
+        height=2
+    )
+    botao_pular.pack(pady=10)
+
     janela.grab_set()
     janela.wait_window()
