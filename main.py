@@ -1,11 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from jogador import Jogador
-from inimigo import Inimigo
+from models.jogador import Jogador
+from models.inimigo import Inimigo
 from combate import combate
 from historia import historia
-from fases import carregar_fases
+from models.fases import carregar_fases
 import os
 
 

@@ -1,5 +1,5 @@
 import tkinter as tk
-from inimigo import Inimigo
+from models.inimigo import Inimigo
 import os
 
 

@@ -1,7 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import random
-from jogador import Jogador
+from models.jogador import Jogador
 
 
 def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fim=None):
