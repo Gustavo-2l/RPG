@@ -1,8 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-import random
+import numpy as np  # <-- import numpy
 from models.jogador import Jogador
-
 
 def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fim=None):
     # --- Janela do combate ---
@@ -47,7 +46,7 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
     jogador.defendendo = False
     jogador.esquivando = False
     if not hasattr(jogador, "itens"):
-        jogador.itens = {"poção": 2}  # caso o jogador ainda não tenha itens
+        jogador.itens = {"poção": 2}
 
     # --- Funções auxiliares ---
     def registrar(texto):
@@ -87,7 +86,7 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
 
         # --- Esquiva ---
         if jogador.esquivando:
-            chance = random.random()
+            chance = np.random.rand()  # <-- usando numpy
             if chance <= 0.5:
                 registrar(f"{jogador.nome} esquivou com sucesso! 🌀 Nenhum dano recebido.")
                 jogador.esquivando = False
@@ -102,7 +101,6 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
         # --- Ataque inimigo ---
         dano = inimigo.atacar()
 
-        # Defesa reduz dano
         if jogador.defendendo:
             dano = int(dano * 0.5)
             jogador.defendendo = False
@@ -146,7 +144,7 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
     def usar_item():
         if jogador.itens.get("poção", 0) > 0:
             jogador.itens["poção"] -= 1
-            cura = random.randint(20, 35)
+            cura = np.random.randint(20, 36)  # <-- usando numpy
             jogador.vida += cura
             if jogador.vida > jogador.vida_max:
                 jogador.vida = jogador.vida_max
@@ -159,7 +157,7 @@ def combate(jogador, inimigo, caminho_fundo="assets/Florestaprofunda.png", on_fi
     def usar_habilidade():
         if getattr(jogador, "habilidade_desbloqueada", None):
             registrar(f"{jogador.nome} usou {jogador.habilidade_desbloqueada}! ✨")
-            dano = random.randint(15, 25)
+            dano = np.random.randint(15, 26)  # <-- usando numpy
             inimigo.vida -= dano
             if inimigo.vida < 0:
                 inimigo.vida = 0

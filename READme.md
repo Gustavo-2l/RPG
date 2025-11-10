@@ -147,4 +147,7 @@ LEGENDARUM é mais que um simples RPG em Python —
 é uma jornada que une história, tecnologia e emoção, mostrando como é possível criar experiências imersivas usando ferramentas simples como Tkinter.
  
 💛 “Toda lenda começa com um nome… o seu.”
+
+
+Criados por: Gustavo, Lyan e Maria Julia
  
